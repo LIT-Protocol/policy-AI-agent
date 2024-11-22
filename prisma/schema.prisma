@@ -1,0 +1,17 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Transaction {
+  id          Int      @id @default(autoincrement())
+  txHash      String   @unique
+  amount      Int      // Store amount as integer (USDC * 1_000_000)
+  timestamp   DateTime @default(now())
+  status      String
+  approved    Boolean  @default(false)
+} 
