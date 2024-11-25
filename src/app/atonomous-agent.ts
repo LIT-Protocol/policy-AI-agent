@@ -1,11 +1,10 @@
-import { getBaseChainMetrics } from '../utils';
+import { getYellowstoneChainMetrics } from './utils';
+import { humanVerification, signAndBroadcastTransaction } from './agent';
 
 export async function autonomousAgent() {
   try {
-    // Get chain metrics first
-    const metrics = await getBaseChainMetrics();
+    const metrics = await getYellowstoneChainMetrics();
     
-    // Get AI decision from server endpoint with metrics
     const response = await fetch('/api/ai-decision', {
       method: 'POST',
       headers: {
@@ -23,12 +22,17 @@ export async function autonomousAgent() {
     console.log("AI Agent decision:", decision);
     
     if (decision.shouldTransact) {
-      console.log("AI Agent initiating transaction:", decision);
-      const makeTransaction = (await import('../agent')).makeTransaction;
-      await makeTransaction(decision.amount);
+      if (decision.requiresVerification) {
+        console.log("Amount exceeds threshold - requesting human verification");
+        await humanVerification(parseFloat(decision.amount));
+        return decision;
+      }
+      
+      console.log("AI Agent initiating direct transaction:", decision);
+      const txHash = await signAndBroadcastTransaction(false, undefined, decision.amount);
+      console.log("Transaction completed with hash:", txHash);
+      return decision;
     }
-
-    return decision;
   } catch (error) {
     console.error('AI agent error:', error);
     throw error;

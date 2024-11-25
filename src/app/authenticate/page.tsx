@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { authenticateToken } from '../agent';
+import { authenticateToken } from '../utils';
 
 export default function AuthenticatePage() {
   const router = useRouter();
@@ -13,30 +13,25 @@ export default function AuthenticatePage() {
   useEffect(() => {
     const handleAuthentication = async () => {
       const token = searchParams.get('token');
+      const txHash = searchParams.get('txHash');
       
       if (!token) {
         setError('Missing authentication token');
         return;
       }
 
-      try {
-        setStatus('Getting latest transaction...');
-        // Get the latest pending transaction first
-        const pendingResponse = await fetch('/api/latest-pending-transaction');
-        const pendingData = await pendingResponse.json();
-        
-        if (!pendingData.success || !pendingData.transaction) {
-          setError('No pending transaction found');
-          return;
-        }
+      if (!txHash) {
+        setError('Missing transaction hash');
+        return;
+      }
 
-        setStatus('Authenticating...');
-        // Then authenticate with the transaction hash
-        const session = await authenticateToken(token, pendingData.transaction.txHash);
+      try {
+        setStatus('Authenticating transaction...');
+        const session = await authenticateToken(token, txHash);
         
         if (session) {
           setStatus('Authentication successful! Redirecting...');
-          router.push(`/transaction/${pendingData.transaction.txHash}`);
+          router.push(`/database/${txHash}`);
         } else {
           setError('Authentication failed');
         }

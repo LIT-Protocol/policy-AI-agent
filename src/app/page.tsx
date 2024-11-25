@@ -1,14 +1,13 @@
 'use client'
 
-import React, { useEffect, useState } from "react";
-import { startAutonomousAgent } from "./ai-agent/agent";
+import React, { useEffect } from "react";
+import { startAutonomousAgent } from "./atonomous-agent";
 
 export default function Home() {
 
   useEffect(() => {
     startAutonomousAgent();
 
-    // Cleanup
     return () => {
     };
   }, []);

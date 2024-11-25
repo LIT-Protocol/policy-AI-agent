@@ -17,7 +17,7 @@ const _litActionCode = async () => {
           console.log("🔒 Storing transaction for verification...");
           
           // Store transaction with proper amount format
-          const storeResponse = await fetch(`${baseUrl}/api/store-transaction`, {
+          const storeResponse = await fetch(`${baseUrl}/api/database/create-transaction`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',

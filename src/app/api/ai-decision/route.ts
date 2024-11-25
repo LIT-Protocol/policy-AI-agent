@@ -1,9 +1,14 @@
 import { NextResponse } from 'next/server';
+import OpenAI from 'openai';
+
+const openai = new OpenAI({
+    apiKey: process.env.OPENAI_API_KEY
+});
 
 export async function POST(request: Request) {
     try {
         const { metrics } = await request.json();
-        const decision = makeSwapDecision(metrics);
+        const decision = await makeSwapDecision(metrics);
         
         return NextResponse.json({
             success: true,
@@ -19,46 +24,73 @@ export async function POST(request: Request) {
     }
 }
 
-function makeSwapDecision(metrics: any) {
-    // Base amount in USDC
-    let baseAmount = 5; // 5 USDC
-    const shouldTransact = true; // Always true for testing
+async function makeSwapDecision(metrics: any) {
+    const AMOUNT_THRESHOLD = process.env.AMOUNT_THRESHOLD // gwei threshold for verification
+    let shouldTransact = true;
+    let requiresVerification = false;
     let urgency = "medium";
     let reasoning = "";
 
-    if (metrics.gasPrice > 100) {
-        reasoning += "⚠️ Gas prices high but proceeding. ";
-    } else if (metrics.gasPrice < 30) {
-        urgency = "high";
-        reasoning += "✅ Gas prices favorable. ";
+    // Generate amount using OpenAI
+    const prompt = `Given the current Yellowstone network conditions:
+        - Gas Price: ${metrics.gasPrice} gwei
+        - Network Load: ${metrics.networkLoad}
+        - Transactions in last block: ${metrics.transactionCount}
+        
+        Generate a suitable gwei amount to send in a transaction. The amount should be between 1 and 40 gwei.
+        Consider the following:
+        - If network load is High, suggest lower amounts
+        - If gas price is high (>50 gwei), suggest lower amounts
+        - If conditions are favorable (low load, low gas), you can suggest higher amounts
+        
+        Return in JSON format: { "amount": number, "reasoning": "string" }`;
+
+    const completion = await openai.chat.completions.create({
+        messages: [{ role: "user", content: prompt }],
+        model: "gpt-4o-mini",
+        response_format: { type: "json_object" },
+    });
+
+    const aiResponse = JSON.parse(completion.choices[0].message.content!);
+    const baseAmount = parseFloat(aiResponse.amount);
+    reasoning = aiResponse.reasoning;
+    console.log("AI Response:", aiResponse);
+
+    // Check if amount requires verification
+    if (baseAmount > parseFloat(AMOUNT_THRESHOLD!)) {
+        requiresVerification = true;
+        reasoning += "\n⚠️ Amount exceeds threshold - requires human verification.";
     }
 
+    // Add network condition analysis
     if (metrics.networkLoad === "High") {
-        reasoning += "⚠️ High network congestion but proceeding. ";
+        reasoning += "\n⚠️ High network congestion but proceeding.";
     } else if (metrics.networkLoad === "Low") {
         urgency = "high";
-        reasoning += "✅ Network congestion low. ";
+        reasoning += "\n✅ Network congestion low.";
     }
 
-    if (metrics.ethPrice < 2000) {
+    if (metrics.gasPrice > 50) {
+        reasoning += "\n⚠️ Gas prices are high.";
+        urgency = "low";
+    } else if (metrics.gasPrice < 20) {
         urgency = "high";
-        reasoning += "✅ ETH price favorable for buying. ";
-    } else if (metrics.ethPrice > 2500) {
-        reasoning += "⚠️ ETH price relatively high but proceeding. ";
+        reasoning += "\n✅ Gas prices are favorable.";
     }
 
     reasoning += `\nCurrent conditions:
         - Gas Price: ${metrics.gasPrice} gwei
         - Network Load: ${metrics.networkLoad}
-        - ETH Price: $${metrics.ethPrice.toFixed(2)}
-        - Amount to swap: ${baseAmount} USDC
-        - Transactions in last block: ${metrics.transactionCount}`;
+        - Transactions in last block: ${metrics.transactionCount}
+        - Amount to send: ${baseAmount} gwei
+        - Requires Verification: ${requiresVerification}`;
 
     return {
         shouldTransact,
         amount: baseAmount.toString(),
         reasoning,
         urgency,
+        requiresVerification,
         metrics
     };
 } 

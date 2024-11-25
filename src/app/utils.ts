@@ -1,14 +1,16 @@
-import { LIT_CHAINS } from "@lit-protocol/constants";
+import { LIT_CHAINS, LIT_RPC, LIT_ABILITY, LIT_NETWORK } from "@lit-protocol/constants";
+import { LitPKPResource, LitActionResource } from "@lit-protocol/auth-helpers";
+import { LitNodeClient } from "@lit-protocol/lit-node-client"
+import { EthWalletProvider} from "@lit-protocol/lit-auth-client";
+
 import * as ethers from 'ethers';
 
-// Base mainnet addresses
-const USDC_ADDRESS = "0x833589fCD6eDb6E08f4c7C32D4f71b54bdA02913";
-const WETH_ADDRESS = "0x4200000000000000000000000000000000000006";
-const UNISWAP_V3_POOL = "0x4c36388be6f416a29c8d8eee81c771ce6be14b18";
+const ETHEREUM_PRIVATE_KEY = process.env.NEXT_PUBLIC_ETHEREUM_PRIVATE_KEY;
+const LIT_PKP_PUBLIC_KEY = process.env.NEXT_PUBLIC_LIT_PKP_PUBLIC_KEY;
 
-export async function getBaseChainMetrics() {
+export async function getYellowstoneChainMetrics() {
   try {
-    const provider = new ethers.providers.JsonRpcProvider("https://mainnet.base.org");
+    const provider = new ethers.providers.JsonRpcProvider(LIT_RPC.CHRONICLE_YELLOWSTONE);
     
     // Get gas price
     const gasPrice = await provider.getGasPrice();
@@ -18,11 +20,6 @@ export async function getBaseChainMetrics() {
     const block = await provider.getBlock("latest");
     const transactionCount = block.transactions.length;
     
-    // Get ETH price from an API (you might want to use a different price feed)
-    const ethPriceResponse = await fetch('https://api.coingecko.com/api/v3/simple/price?ids=ethereum&vs_currencies=usd');
-    const ethPriceData = await ethPriceResponse.json();
-    const ethPrice = ethPriceData.ethereum.usd;
-
     // Determine network load based on transaction count
     let networkLoad = "Low";
     if (transactionCount > 100) networkLoad = "High";
@@ -31,60 +28,17 @@ export async function getBaseChainMetrics() {
     return {
       gasPrice: gasPriceGwei,
       networkLoad,
-      ethPrice,
-      transactionCount,
-      blockTimestamp: block.timestamp
+      transactionCount
     };
   } catch (error) {
     console.error('Failed to fetch chain metrics:', error);
     return {
       gasPrice: 0,
-      networkLoad: "Unknown",
-      ethPrice: 0,
-      transactionCount: 0,
-      blockTimestamp: Date.now()
+      networkLoad: "Unknown", 
+      transactionCount: 0
     };
   }
 }
-
-async function getEthPrice(provider: ethers.providers.JsonRpcProvider) {
-    const poolAbi = [
-        "function slot0() external view returns (uint160 sqrtPriceX96, int24 tick, uint16 observationIndex, uint16 observationCardinality, uint16 observationCardinalityNext, uint8 feeProtocol, bool unlocked)"
-    ];
-    
-    const pool = new ethers.Contract(UNISWAP_V3_POOL, poolAbi, provider);
-    const { tick } = await pool.slot0();
-    
-    // Calculate price from tick
-    const price = Math.pow(1.0001, tick);
-    return price; // Returns price in USDC per ETH
-}
-
-async function getNetworkLoad(provider: ethers.providers.JsonRpcProvider) {
-    const blockNumber = await provider.getBlockNumber();
-    const blocks = await Promise.all(
-        Array.from({ length: 5 }, (_, i) => 
-            provider.getBlock(blockNumber - i)
-        )
-    );
-    
-    const avgTxCount = blocks.reduce((sum, block) => 
-        sum + block.transactions.length, 0
-    ) / blocks.length;
-    
-    if (avgTxCount < 50) return "Low";
-    if (avgTxCount > 150) return "High";
-    return "Medium";
-}
-
-export const getEnv = (name: string): string => {
-    const env = process.env[name];
-    if (env === undefined || env === "")
-      throw new Error(
-        `${name} ENV is not defined, please define it in the .env file`
-      );
-    return env;
-  };
 
   export const getChainInfo = (
     chain: string
@@ -98,3 +52,69 @@ export const getEnv = (name: string): string => {
     };
   };
   
+  export async function getPkpSessionSigs(litNodeClient: LitNodeClient) {
+    const ethersWallet = new ethers.Wallet(
+        ETHEREUM_PRIVATE_KEY!,
+        new ethers.providers.JsonRpcProvider(LIT_RPC.CHRONICLE_YELLOWSTONE)
+    );
+
+    const authMethod = await EthWalletProvider.authenticate({signer: ethersWallet, litNodeClient});
+
+    let pkpInfo = {
+        publicKey: LIT_PKP_PUBLIC_KEY!,
+        ethAddress: ethers.utils.computeAddress(`0x${LIT_PKP_PUBLIC_KEY}`),
+    };
+
+    const sessionSigs = await litNodeClient.getPkpSessionSigs({
+        pkpPublicKey: pkpInfo.publicKey,
+        authMethods: [authMethod],
+        resourceAbilityRequests: [
+          {
+            resource: new LitPKPResource("*"),
+            ability: LIT_ABILITY.PKPSigning,
+          },
+          {
+            resource: new LitActionResource("*"),
+            ability: LIT_ABILITY.LitActionExecution,
+          },
+        ],
+        expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(),
+    });
+    console.log("✅ Got PKP Session Sigs", sessionSigs);
+    return sessionSigs;
+  }
+
+  export async function authenticateToken(token: string, txHash: string) {
+    try {
+        const response = await fetch('/api/auth/authenticate', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ token })
+        });
+
+        const result = await response.json();
+        if (!result.success) {
+            throw new Error(result.error);
+        }
+
+        await fetch('/api/database/update-transaction', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ 
+                status: 'AUTHENTICATED',
+                approved: false,
+                txHash: txHash
+            })
+        });
+
+        console.log("✅ Authentication successful");
+        return result.session;
+    } catch (error) {
+        console.error("Authentication failed:", error);
+        return null;
+    }
+}

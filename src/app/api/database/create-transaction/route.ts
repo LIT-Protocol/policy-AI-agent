@@ -11,8 +11,8 @@ export async function POST(request: Request) {
             throw new Error('Amount is required');
         }
 
-        // Convert amount to integer (assuming amount is in USDC with 6 decimals)
-        const amountInInt = Math.floor(parseFloat(amount) * 1_000_000);
+        // Convert amount to integer (assuming amount is in gwei)
+        const amountInGwei = Math.floor(parseFloat(amount));
         
         // Generate unique transaction hash
         const timestamp = Date.now();
@@ -21,7 +21,7 @@ export async function POST(request: Request) {
         
         console.log('Creating transaction with:', {
             txHash,
-            amountInInt,
+            amountInGwei,
             status
         });
 
@@ -29,7 +29,7 @@ export async function POST(request: Request) {
         const transaction = await prisma.transaction.create({
             data: {
                 txHash,
-                amount: amountInInt,
+                amount: amountInGwei,
                 timestamp: new Date(timestamp),
                 status: status || 'PENDING'
             }

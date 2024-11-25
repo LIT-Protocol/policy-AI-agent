@@ -3,17 +3,16 @@ import { prisma } from '@/lib/prisma';
 
 export async function POST(request: Request) {
     try {
-        const { txHash, status, blockchainTxHash } = await request.json();
+        const { status, txHash, approved } = await request.json();
         
-        // Update transaction status and blockchain txHash if provided
+        // Update specific transaction by txHash
         const transaction = await prisma.transaction.update({
             where: {
                 txHash: txHash
             },
             data: {
                 status: status,
-                approved: status === 'APPROVED',
-                ...(blockchainTxHash && { txHash: blockchainTxHash }),
+                approved: approved,
                 timestamp: new Date()
             }
         });
@@ -27,7 +26,7 @@ export async function POST(request: Request) {
         console.error('Failed to update transaction:', error);
         return NextResponse.json({ 
             success: false, 
-            error: 'Failed to update transaction status' 
+            error: 'Failed to update transaction' 
         });
     }
 } 
