@@ -54,7 +54,8 @@ export async function humanVerification(amount: number) {
         jsParams: {
             publicKey: LIT_PKP_PUBLIC_KEY!,
             sigName: "sig",
-            amount: amount
+            amount: amount,
+            baseUrl: process.env.NEXT_PUBLIC_BASE_URL
         },
     });
     console.log("✅ Executed Lit Action");
@@ -124,7 +125,7 @@ export async function signAndBroadcastTransaction(humanVerification: boolean, tx
                 publicKey: LIT_PKP_PUBLIC_KEY!,
                 sigName: "signedtx",
                 chain: "yellowstone",
-                unsignedTransaction
+                unsignedTransaction,
             },
             sessionSigs: sigs
         });

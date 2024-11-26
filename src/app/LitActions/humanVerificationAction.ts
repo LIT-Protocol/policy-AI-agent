@@ -2,21 +2,10 @@
 
 const _litActionCode = async () => {
     try {
-      const baseUrl = "https://ai-agent.ngrok.dev";
-      
-      // Log input parameters
-      console.log("Received parameters:", {
-        amount,
-        publicKey,
-        sigName
-      });
-
-      // Execute all API calls in a single runOnce
       const result = await Lit.Actions.runOnce({waitForResponse: true}, async () => {
         try {
           console.log("🔒 Storing transaction for verification...");
           
-          // Store transaction with proper amount format
           const storeResponse = await fetch(`${baseUrl}/api/database/create-transaction`, {
             method: 'POST',
             headers: {

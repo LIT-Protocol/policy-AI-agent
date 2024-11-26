@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { signAndBroadcastTransaction } from '../../../agent-action-execution';
+import { signAndBroadcastTransaction } from '../../../agent-helpers';
 
 interface Transaction {
   id: number;

@@ -10,7 +10,7 @@ export async function POST(request: Request) {
     try {
         const { email, txHash } = await request.json();
         console.log("🔄 Sending magic link to:", email, "for transaction:", txHash);
-        const baseUrl = "https://ai-agent.ngrok.dev";
+        const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
         
         const params = {
             email,

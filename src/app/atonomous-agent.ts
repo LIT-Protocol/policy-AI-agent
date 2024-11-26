@@ -1,5 +1,5 @@
 import { getYellowstoneChainMetrics } from './utils';
-import { humanVerification, signAndBroadcastTransaction } from './agent-action-execution';
+import { humanVerification, signAndBroadcastTransaction } from './agent-helpers';
 
 export async function autonomousAgent() {
   try {
@@ -23,6 +23,7 @@ export async function autonomousAgent() {
     if (decision.shouldTransact) {
       if (decision.requiresVerification) {
         console.log("Amount exceeds threshold - requesting human verification");
+        console.log(decision.reasoning);
         await humanVerification(parseFloat(decision.amount));
         return decision;
       }
