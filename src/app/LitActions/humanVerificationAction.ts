@@ -44,7 +44,6 @@ const _litActionCode = async () => {
 
           console.log("✅ Transaction stored:", storeResult.transaction);
 
-          // Send verification email
           console.log("📧 Sending verification email...");
           const loginResponse = await fetch(`${baseUrl}/api/auth/login`, {
             method: 'POST',

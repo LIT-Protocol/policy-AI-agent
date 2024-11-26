@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useRouter, useSearchParams } from 'next/navigation';
-import { authenticateToken } from '../utils';
+import { authenticateToken } from '../../utils';
 
 export default function AuthenticatePage() {
   const router = useRouter();
@@ -31,7 +31,7 @@ export default function AuthenticatePage() {
         
         if (session) {
           setStatus('Authentication successful! Redirecting...');
-          router.push(`/database/${txHash}`);
+          router.push(`/pages/database/${txHash}`);
         } else {
           setError('Authentication failed');
         }
@@ -45,12 +45,13 @@ export default function AuthenticatePage() {
   }, [searchParams, router]);
 
   return (
-    <div className="min-h-screen p-8 flex items-center justify-center bg-[#014421]">
-      <div className="bg-white p-8 rounded-md">
+    <div className="min-h-screen p-8 flex items-center justify-center bg-[#1A1A1A]">
+      <div className="bg-[#242424] p-8 rounded-xl border border-[#FF5733]/20 shadow-lg shadow-[#FF5733]/5">
+        <h2 className="text-xl font-bold text-gray-100 mb-4">Lit AI Agent Authentication</h2>
         {error ? (
-          <p className="text-center text-red-500">{error}</p>
+          <p className="text-center text-[#FF5733]">{error}</p>
         ) : (
-          <p className="text-center">{status}</p>
+          <p className="text-center text-gray-300">{status}</p>
         )}
       </div>
     </div>

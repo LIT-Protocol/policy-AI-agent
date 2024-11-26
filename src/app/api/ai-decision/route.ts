@@ -25,13 +25,12 @@ export async function POST(request: Request) {
 }
 
 async function makeSwapDecision(metrics: any) {
-    const AMOUNT_THRESHOLD = process.env.AMOUNT_THRESHOLD // gwei threshold for verification
+    const AMOUNT_THRESHOLD = process.env.AMOUNT_THRESHOLD
     let shouldTransact = true;
     let requiresVerification = false;
     let urgency = "medium";
     let reasoning = "";
 
-    // Generate amount using OpenAI
     const prompt = `Given the current Yellowstone network conditions:
         - Gas Price: ${metrics.gasPrice} gwei
         - Network Load: ${metrics.networkLoad}
@@ -56,13 +55,11 @@ async function makeSwapDecision(metrics: any) {
     reasoning = aiResponse.reasoning;
     console.log("AI Response:", aiResponse);
 
-    // Check if amount requires verification
     if (baseAmount > parseFloat(AMOUNT_THRESHOLD!)) {
         requiresVerification = true;
         reasoning += "\n⚠️ Amount exceeds threshold - requires human verification.";
     }
 
-    // Add network condition analysis
     if (metrics.networkLoad === "High") {
         reasoning += "\n⚠️ High network congestion but proceeding.";
     } else if (metrics.networkLoad === "Low") {

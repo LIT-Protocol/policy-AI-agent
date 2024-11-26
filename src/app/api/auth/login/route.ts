@@ -14,8 +14,8 @@ export async function POST(request: Request) {
         
         const params = {
             email,
-            login_magic_link_url: `${baseUrl}/authenticate?txHash=${txHash}`,
-            signup_magic_link_url: `${baseUrl}/authenticate?txHash=${txHash}`,
+            login_magic_link_url: `${baseUrl}/pages/authenticate?txHash=${txHash}`,
+            signup_magic_link_url: `${baseUrl}/pages/authenticate?txHash=${txHash}`,
             login_expiration_minutes: 60,
             signup_expiration_minutes: 60
         };

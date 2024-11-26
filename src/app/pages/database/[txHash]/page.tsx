@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import { useParams } from 'next/navigation';
-import { signAndBroadcastTransaction } from '../../agent';
+import { signAndBroadcastTransaction } from '../../../agent-action-execution';
 
 interface Transaction {
   id: number;
@@ -62,9 +62,9 @@ export default function TransactionPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen p-8 flex items-center justify-center bg-[#014421]">
-        <div className="bg-white p-8 rounded-md">
-          <p>Loading transaction details...</p>
+      <div className="min-h-screen p-8 flex items-center justify-center bg-[#1A1A1A]">
+        <div className="bg-[#242424] p-8 rounded-xl border border-[#FF5733]/20 shadow-lg">
+          <p className="text-gray-300">Loading transaction details...</p>
         </div>
       </div>
     );
@@ -72,19 +72,19 @@ export default function TransactionPage() {
 
   if (!transaction) {
     return (
-      <div className="min-h-screen p-8 flex items-center justify-center bg-[#014421]">
-        <div className="bg-white p-8 rounded-md">
-          <p>Transaction not found</p>
+      <div className="min-h-screen p-8 flex items-center justify-center bg-[#1A1A1A]">
+        <div className="bg-[#242424] p-8 rounded-xl border border-[#FF5733]/20 shadow-lg">
+          <p className="text-gray-300">Transaction not found</p>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen p-8 flex items-center justify-center bg-[#014421]">
-      <div className="bg-white p-8 rounded-md w-full max-w-2xl">
+    <div className="min-h-screen p-8 flex items-center justify-center bg-[#1A1A1A]">
+      <div className="bg-[#242424] p-8 rounded-xl border border-[#FF5733]/20 shadow-lg w-full max-w-2xl">
         {showSuccessMessage && transaction?.approved && (
-          <div className="bg-green-100 border border-green-400 text-green-700 px-4 py-3 rounded relative mb-6">
+          <div className="bg-[#2A2A2A] border border-[#FF5733]/30 text-[#FF5733] px-4 py-3 rounded-lg relative mb-6">
             <strong className="font-bold">Success! </strong>
             <span className="block sm:inline">
               Transaction completed with hash: {transaction.txHash}
@@ -92,32 +92,34 @@ export default function TransactionPage() {
           </div>
         )}
         
-        <h1 className="text-2xl font-bold mb-6">Transaction Details</h1>
+        <h1 className="text-2xl font-bold mb-6 text-gray-100">
+          Lit AI Agent <span className="text-[#FF5733]">Transaction Details</span>
+        </h1>
         <div className="space-y-4">
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-semibold">Transaction Hash:</span>
-            <span className="font-mono text-sm">{transaction.txHash}</span>
+          <div className="flex justify-between border-b border-gray-700 pb-2">
+            <span className="font-semibold text-gray-300">Transaction Hash:</span>
+            <span className="font-mono text-sm text-gray-400">{transaction.txHash}</span>
           </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-semibold">Amount:</span>
-            <span>{transaction.amount} gwei</span>
+          <div className="flex justify-between border-b border-gray-700 pb-2">
+            <span className="font-semibold text-gray-300">Amount:</span>
+            <span className="text-gray-400">{transaction.amount} gwei</span>
           </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-semibold">Status:</span>
+          <div className="flex justify-between border-b border-gray-700 pb-2">
+            <span className="font-semibold text-gray-300">Status:</span>
             <span className={`${
-              transaction.status === 'AUTHENTICATED' ? 'text-green-600' : 'text-yellow-600'
+              transaction.status === 'AUTHENTICATED' ? 'text-[#FF5733]' : 'text-yellow-500'
             }`}>
               {transaction.status}
             </span>
           </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-semibold">Timestamp:</span>
-            <span>{new Date(transaction.timestamp).toLocaleString()}</span>
+          <div className="flex justify-between border-b border-gray-700 pb-2">
+            <span className="font-semibold text-gray-300">Timestamp:</span>
+            <span className="text-gray-400">{new Date(transaction.timestamp).toLocaleString()}</span>
           </div>
-          <div className="flex justify-between border-b pb-2">
-            <span className="font-semibold">Approved:</span>
+          <div className="flex justify-between border-b border-gray-700 pb-2">
+            <span className="font-semibold text-gray-300">Approved:</span>
             <span className={`${
-              transaction.approved ? 'text-green-600' : 'text-red-600'
+              transaction.approved ? 'text-[#FF5733]' : 'text-red-500'
             }`}>
               {transaction.approved ? 'Yes' : 'No'}
             </span>
@@ -127,9 +129,9 @@ export default function TransactionPage() {
               <button
                 onClick={handleApprove}
                 disabled={approving}
-                className={`bg-green-500 text-white px-6 py-2 rounded-md ${
-                  approving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-green-600'
-                }`}
+                className={`bg-[#FF5733] text-white px-6 py-2 rounded-lg ${
+                  approving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#FF5733]/80'
+                } transition-all duration-200`}
               >
                 {approving ? 'Approving...' : 'Approve Transaction'}
               </button>

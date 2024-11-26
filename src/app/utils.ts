@@ -12,15 +12,12 @@ export async function getYellowstoneChainMetrics() {
   try {
     const provider = new ethers.providers.JsonRpcProvider(LIT_RPC.CHRONICLE_YELLOWSTONE);
     
-    // Get gas price
     const gasPrice = await provider.getGasPrice();
     const gasPriceGwei = parseFloat(ethers.utils.formatUnits(gasPrice, "gwei"));
 
-    // Get latest block
     const block = await provider.getBlock("latest");
     const transactionCount = block.transactions.length;
     
-    // Determine network load based on transaction count
     let networkLoad = "Low";
     if (transactionCount > 100) networkLoad = "High";
     else if (transactionCount > 50) networkLoad = "Medium";

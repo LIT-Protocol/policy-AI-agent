@@ -1,5 +1,5 @@
 import { getYellowstoneChainMetrics } from './utils';
-import { humanVerification, signAndBroadcastTransaction } from './agent';
+import { humanVerification, signAndBroadcastTransaction } from './agent-action-execution';
 
 export async function autonomousAgent() {
   try {
@@ -19,7 +19,6 @@ export async function autonomousAgent() {
     }
 
     const { decision } = data;
-    console.log("AI Agent decision:", decision);
     
     if (decision.shouldTransact) {
       if (decision.requiresVerification) {
@@ -28,7 +27,7 @@ export async function autonomousAgent() {
         return decision;
       }
       
-      console.log("AI Agent initiating direct transaction:", decision);
+      console.log("AI Agent initiating direct transaction:", decision.reasoning);
       const txHash = await signAndBroadcastTransaction(false, undefined, decision.amount);
       console.log("Transaction completed with hash:", txHash);
       return decision;
