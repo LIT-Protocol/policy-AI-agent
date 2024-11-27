@@ -4,15 +4,19 @@ This repository contains a Next.js application showing the potential of Lit Prot
 
 ## Overview
 
+The code starts by querying the Chronicle Yellowstone blockchain for metrics such as the gas price and network count. We then use our AI agent to decide the specific transaction amount to send depending on the metrics. If the amount exceeds a certain threshold, the AI agent will request human verification. The human verification will store the transaction in our local database and mark the status as `PENDING`, and a OTP (one-time password) will be sent to the email address of the AI agent's owner.
 
+Once the OTP has been clicked, the Agent owner will be redirected to the application, where the transaction information will be displayed with a button to approve the transaction. Approval allows the Agent's PKP to sign and broadcast the transaction to the blockchain. The transaction will then be marked as `APPROVED` in the database.
 
 ### Prerequisites
 
 Before we get started, you'll need to have the following:
 
-- A Stytch project
 - A Lit Protocol PKP minted to an Ethereum wallet
+- A Stytch project
 - An OpenAI API key
+
+More details on how to set these up can be found below.
 
 ### Step 1: Clone the Repository
 
@@ -59,7 +63,7 @@ Download Ngrok from https://ngrok.com/download
 In a new terminal, run `ngrok http 3000`. This will create an http endpoint for our application. Copy this URL and add it to the `NEXT_PUBLIC_BASE_URL` field in the `.env` file.
 
 ### Step 4: Setup Stytch
-Create a Stytch account and project https://stytch.com/dashboard?env=test
+Create a Stytch account and project on the [Stytch Dashboard](https://stytch.com/dashboard).
 
 On the dashboard, copy the `public token`, `secret key`, and `project ID` to the `.env` file. You will also need to add the base URL of your application to the `NEXT_PUBLIC_BASE_URL` field in the `.env` file. 
 
@@ -80,3 +84,20 @@ Add your OpenAI API key to the `.env` file. Please make sure that you've enabled
 Run the application with `yarn dev`.
 
 In a new terminal, run `ngrok http 3000`. This will create an http endpoint for our application. Copy this URL and add it to the `NEXT_PUBLIC_BASE_URL` field in the `.env` file. Please note that the URL must be the same as the one you added to the Stytch redirect URLs, if it is not, you will need to change it in the Stytch dashboard.
+
+
+## Specific Files to Reference
+
+- [./src/app/atonomous-agent.ts](./src/app/atonomous-agent.ts): Contains the core logic for the AI agent, making API calls to the server-side to make decisions, and determining whether to request human verification to send a transaction.
+
+- [./src/app/agent-helpers.ts](./src/app/agent-helpers.ts): Contains helper functions for the AI agent, such as human verification and signing and broadcasting transactions.
+
+- [./src/app/LitActions/humanVerificationAction.ts](./src/app/LitActions/humanVerificationAction.ts): Contains the Lit Action for human verification. This will create a transaction in our local database through the ngrok endpoint, which routes traffic to our application. After successfully storing the transaction, an email will be sent to the Agent owner with a link to click to approve the transaction. This email authentication also contains the transaction hash, which is used to fetch the transaction from our database.
+
+- [./src/app/LitActions/litActionTx.ts](./src/app/LitActions/litActionTx.ts): Contains the Lit Action for signing and broadcasting a transaction. This will take the signed transaction and send it to the blockchain.
+
+- [./src/app/utils.ts](./src/app/utils.ts): Contains helper functions for the application. These include: fetching blockchain metrics, blockchain metadata, authenticating a Stytch OTP token, and generating PKP Session Signatures.
+
+- [./src/app/pages](./src/app/pages/): Contains the frontend pages for the application.
+
+- [./src/app/api](./src/app/api/): Contains the server-side API endpoints for the application.
