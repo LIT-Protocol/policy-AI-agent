@@ -77,7 +77,7 @@ export async function getYellowstoneChainMetrics() {
         ],
         expiration: new Date(Date.now() + 1000 * 60 * 10).toISOString(),
     });
-    console.log("✅ Got PKP Session Sigs", sessionSigs);
+    console.log("✅ Got PKP Session Sigs");
     return sessionSigs;
   }
 
