@@ -1,4 +1,4 @@
-//@ts-nocheck
+// @ts-nocheck
 
 const _aiActionCode = async () => {
     try {

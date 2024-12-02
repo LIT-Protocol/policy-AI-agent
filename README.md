@@ -163,6 +163,8 @@ Run the application with `yarn dev`.
 
 In a new terminal, run `ngrok http 3000`. This will create an http endpoint for our application. Copy this URL and add it to the `NEXT_PUBLIC_BASE_URL` field in the `.env` file. Please note that the URL must be the same as the one you added to the Stytch redirect URLs, if it is not, you will need to change it in the Stytch dashboard.
 
+After the agent successfully sends a transaction, you should see the transaction hash in the console. You can view the transaction on [Chronicle Yellowstone Explorer](https://yellowstone-explorer.litprotocol.com/).
+
 
 ## Specific Files to Reference
 

@@ -1,8 +1,9 @@
-'use client'
+"use client";
 
-import { useEffect, useState } from 'react';
-import { useParams } from 'next/navigation';
-import { signAndBroadcastTransaction } from '../../../agent-helpers';
+import { useEffect, useState } from "react";
+import { useParams } from "next/navigation";
+
+import { signAndBroadcastTransaction } from "../../../agent-helpers";
 
 interface Transaction {
   id: number;
@@ -22,7 +23,9 @@ export default function TransactionPage() {
 
   const fetchTransaction = async () => {
     try {
-      const response = await fetch(`/api/database/fetch-transaction/${params.txHash}`);
+      const response = await fetch(
+        `/api/database/fetch-transaction/${params.txHash}`
+      );
       const data = await response.json();
       if (data.success) {
         setTransaction(data.transaction);
@@ -31,7 +34,7 @@ export default function TransactionPage() {
         }
       }
     } catch (error) {
-      console.error('Failed to fetch transaction:', error);
+      console.error("Failed to fetch transaction:", error);
     } finally {
       setLoading(false);
     }
@@ -45,16 +48,19 @@ export default function TransactionPage() {
 
   const handleApprove = async () => {
     if (!transaction) return;
-    
+
     setApproving(true);
     try {
-      const txHash = await signAndBroadcastTransaction(true, transaction.txHash);
+      const txHash = await signAndBroadcastTransaction(
+        true,
+        transaction.txHash
+      );
       if (txHash) {
         await fetchTransaction();
         setShowSuccessMessage(true);
       }
     } catch (error) {
-      console.error('Failed to approve transaction:', error);
+      console.error("Failed to approve transaction:", error);
     } finally {
       setApproving(false);
     }
@@ -91,14 +97,19 @@ export default function TransactionPage() {
             </span>
           </div>
         )}
-        
+
         <h1 className="text-2xl font-bold mb-6 text-gray-100">
-          Lit AI Agent <span className="text-[#FF5733]">Transaction Details</span>
+          Lit AI Agent{" "}
+          <span className="text-[#FF5733]">Transaction Details</span>
         </h1>
         <div className="space-y-4">
           <div className="flex justify-between border-b border-gray-700 pb-2">
-            <span className="font-semibold text-gray-300">Transaction Hash:</span>
-            <span className="font-mono text-sm text-gray-400">{transaction.txHash}</span>
+            <span className="font-semibold text-gray-300">
+              Transaction Hash:
+            </span>
+            <span className="font-mono text-sm text-gray-400">
+              {transaction.txHash}
+            </span>
           </div>
           <div className="flex justify-between border-b border-gray-700 pb-2">
             <span className="font-semibold text-gray-300">Amount:</span>
@@ -106,34 +117,44 @@ export default function TransactionPage() {
           </div>
           <div className="flex justify-between border-b border-gray-700 pb-2">
             <span className="font-semibold text-gray-300">Status:</span>
-            <span className={`${
-              transaction.status === 'AUTHENTICATED' ? 'text-[#FF5733]' : 'text-yellow-500'
-            }`}>
+            <span
+              className={`${
+                transaction.status === "AUTHENTICATED"
+                  ? "text-[#FF5733]"
+                  : "text-yellow-500"
+              }`}
+            >
               {transaction.status}
             </span>
           </div>
           <div className="flex justify-between border-b border-gray-700 pb-2">
             <span className="font-semibold text-gray-300">Timestamp:</span>
-            <span className="text-gray-400">{new Date(transaction.timestamp).toLocaleString()}</span>
+            <span className="text-gray-400">
+              {new Date(transaction.timestamp).toLocaleString()}
+            </span>
           </div>
           <div className="flex justify-between border-b border-gray-700 pb-2">
             <span className="font-semibold text-gray-300">Approved:</span>
-            <span className={`${
-              transaction.approved ? 'text-[#FF5733]' : 'text-red-500'
-            }`}>
-              {transaction.approved ? 'Yes' : 'No'}
+            <span
+              className={`${
+                transaction.approved ? "text-[#FF5733]" : "text-red-500"
+              }`}
+            >
+              {transaction.approved ? "Yes" : "No"}
             </span>
           </div>
-          {!transaction.approved && transaction.status === 'AUTHENTICATED' && (
+          {!transaction.approved && transaction.status === "AUTHENTICATED" && (
             <div className="flex justify-center mt-6">
               <button
                 onClick={handleApprove}
                 disabled={approving}
                 className={`bg-[#FF5733] text-white px-6 py-2 rounded-lg ${
-                  approving ? 'opacity-50 cursor-not-allowed' : 'hover:bg-[#FF5733]/80'
+                  approving
+                    ? "opacity-50 cursor-not-allowed"
+                    : "hover:bg-[#FF5733]/80"
                 } transition-all duration-200`}
               >
-                {approving ? 'Approving...' : 'Approve Transaction'}
+                {approving ? "Approving..." : "Approve Transaction"}
               </button>
             </div>
           )}
@@ -141,4 +162,4 @@ export default function TransactionPage() {
       </div>
     </div>
   );
-} 
+}

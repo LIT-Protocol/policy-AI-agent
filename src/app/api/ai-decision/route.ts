@@ -37,6 +37,8 @@ async function makeSwapDecision(metrics: any) {
     console.log("✅ Connected to Lit network");
 
     const sessionSigs = await getPkpSessionSigs(litNodeClient);
+
+    console.log("🔄 Executing AI Lit Action...");
     const litActionResponse = await litNodeClient.executeJs({
         sessionSigs: sessionSigs,
         code: aiActionCode,
@@ -48,6 +50,6 @@ async function makeSwapDecision(metrics: any) {
             apiKey: process.env.OPENAI_API_KEY
         },
     });
-    console.log("✅ Executed Lit Action");
+    console.log("✅ Executed AI Lit Action");
     return JSON.parse(litActionResponse.response as string);
 }
