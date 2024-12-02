@@ -2,7 +2,7 @@ import { NextResponse } from 'next/server';
 import { getPkpSessionSigs } from '@/app/utils';
 import { LitNodeClient } from '@lit-protocol/lit-node-client';
 import { LIT_NETWORK } from '@lit-protocol/constants';
-import { litAIActionCode } from './aiAction';
+import { aiActionCode } from '../../LitActions/aiAction';
 
 const LIT_PKP_PUBLIC_KEY = process.env.NEXT_PUBLIC_LIT_PKP_PUBLIC_KEY;
 
@@ -39,7 +39,7 @@ async function makeSwapDecision(metrics: any) {
     const sessionSigs = await getPkpSessionSigs(litNodeClient);
     const litActionResponse = await litNodeClient.executeJs({
         sessionSigs: sessionSigs,
-        code: litAIActionCode,
+        code: aiActionCode,
         jsParams: {
             publicKey: LIT_PKP_PUBLIC_KEY!,
             sigName: "sig",

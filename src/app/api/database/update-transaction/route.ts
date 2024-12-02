@@ -5,7 +5,6 @@ export async function POST(request: Request) {
     try {
         const { status, txHash, approved } = await request.json();
         
-        // Update specific transaction by txHash
         const transaction = await prisma.transaction.update({
             where: {
                 txHash: txHash

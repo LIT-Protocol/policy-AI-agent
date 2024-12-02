@@ -4,7 +4,7 @@ import { validateSessionSigs } from '@lit-protocol/misc';
 import * as ethers from 'ethers';
 
 import { litActionCode } from './LitActions/humanVerificationAction';
-import { litActionCodeTx } from './LitActions/litActionTx';
+import { transactionActionCode } from './LitActions/transactionAction';
 import { getChainInfo, getPkpSessionSigs } from './utils';
 
 const LIT_PKP_PUBLIC_KEY = process.env.NEXT_PUBLIC_LIT_PKP_PUBLIC_KEY;
@@ -55,7 +55,8 @@ export async function humanVerification(amount: number) {
             publicKey: LIT_PKP_PUBLIC_KEY!,
             sigName: "sig",
             amount: amount,
-            baseUrl: process.env.NEXT_PUBLIC_BASE_URL
+            baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
+            email: process.env.NEXT_PUBLIC_STYTCH_EMAIL
         },
     });
     console.log("✅ Executed Lit Action");
@@ -106,7 +107,7 @@ export async function signAndBroadcastTransaction(humanVerification: boolean, tx
         const gasPrice = await ethersProvider.getGasPrice();
 
         const unsignedTransaction = {
-            to: "0xa7D7BC15FCD782A5f2217d1Df20DFD14C1d218e9",
+            to: "0xa7D7BC15FCD782A5f2217d1Df20DFD14C1d218e9", // Arbitrary address
             gasLimit: 21000, 
             gasPrice: gasPrice.toHexString(),
             nonce: await ethersProvider.getTransactionCount(ethers.utils.computeAddress(`0x${LIT_PKP_PUBLIC_KEY}`)),
@@ -119,7 +120,7 @@ export async function signAndBroadcastTransaction(humanVerification: boolean, tx
         );
 
         const litActionResponse = await client.executeJs({
-            code: litActionCodeTx,
+            code: transactionActionCode,
             jsParams: {
                 toSign: ethers.utils.arrayify(unsignedTransactionHash),
                 publicKey: LIT_PKP_PUBLIC_KEY!,

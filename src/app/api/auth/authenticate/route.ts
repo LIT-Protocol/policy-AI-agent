@@ -23,7 +23,7 @@ export async function POST(request: Request) {
         
     } catch (error) {
         console.error('Authentication failed:', error);
-        // Log the full error details
+
         if (error instanceof stytch.StytchError) {
             console.error('Stytch error details:', {
                 status_code: error.status_code,

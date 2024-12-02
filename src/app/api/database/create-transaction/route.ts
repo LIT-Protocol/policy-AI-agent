@@ -6,15 +6,12 @@ export async function POST(request: Request) {
     try {
         const { amount, status } = await request.json();
         
-        // Validate input
         if (amount === undefined) {
             throw new Error('Amount is required');
         }
 
-        // Convert amount to integer (assuming amount is in gwei)
         const amountInGwei = Math.floor(parseFloat(amount));
         
-        // Generate unique transaction hash
         const timestamp = Date.now();
         const randomId = uuidv4().slice(0, 12);
         const txHash = `tx_${timestamp}_${randomId}_${Math.floor(Math.random() * 10)}`;
@@ -25,7 +22,6 @@ export async function POST(request: Request) {
             status
         });
 
-        // Create transaction record
         const transaction = await prisma.transaction.create({
             data: {
                 txHash,
@@ -37,18 +33,16 @@ export async function POST(request: Request) {
         
         console.log('Transaction created:', transaction);
 
-        // Return response with original amount format
         return NextResponse.json({ 
             success: true,
             transaction: {
                 ...transaction,
-                amount: parseFloat(amount) // Return original amount for display
+                amount: parseFloat(amount)
             }
         });
         
     } catch (error) {
         console.error('Failed to store transaction:', error);
-        // Return more detailed error message
         return NextResponse.json({ 
             success: false, 
             error: error instanceof Error ? error.message : 'Failed to store transaction',

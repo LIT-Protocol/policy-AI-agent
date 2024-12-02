@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-const _litActionCodeTx = async () => {
+const _transactionActionCode = async () => {
   const signature = await Lit.Actions.signAndCombineEcdsa({
     toSign,
     publicKey,
@@ -39,4 +39,4 @@ const _litActionCodeTx = async () => {
 };
 
 
-export const litActionCodeTx = `(${_litActionCodeTx.toString()})();`;
+export const transactionActionCode = `(${_transactionActionCode.toString()})();`;

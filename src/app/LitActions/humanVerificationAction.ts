@@ -40,7 +40,7 @@ const _litActionCode = async () => {
               'Content-Type': 'application/json',
             },
             body: JSON.stringify({ 
-              email: "andrew@litprotocol.com",
+              email,
               txHash: storeResult.transaction.txHash
             })
           });

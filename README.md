@@ -98,6 +98,8 @@ The following Stytch information can be found on the [project dashboard](https:/
   - Public token of the Stytch project.
 - NEXT_PUBLIC_STYTCH_PROJECT_ID
   - Project ID of the Stytch project.
+- NEXT_PUBLIC_STYTCH_EMAIL
+  - Email of the Stytch project owner.
 - STYTCH_SECRET_KEY
   - Secret ket of the Stytch project.
 

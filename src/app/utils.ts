@@ -1,4 +1,4 @@
-import { LIT_CHAINS, LIT_RPC, LIT_ABILITY, LIT_NETWORK } from "@lit-protocol/constants";
+import { LIT_CHAINS, LIT_RPC, LIT_ABILITY } from "@lit-protocol/constants";
 import { LitPKPResource, LitActionResource } from "@lit-protocol/auth-helpers";
 import { LitNodeClient } from "@lit-protocol/lit-node-client"
 import { EthWalletProvider} from "@lit-protocol/lit-auth-client";

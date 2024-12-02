@@ -1,8 +1,7 @@
 //@ts-nocheck
 
-const _litAIActionCode = async () => {
+const _aiActionCode = async () => {
     try {
-        // 1. Prepare the prompt with network metrics
         const prompt = `Given the current Yellowstone network conditions:
         - Gas Price: ${metrics.gasPrice} gwei
         - Network Load: ${metrics.networkLoad}
@@ -16,7 +15,6 @@ const _litAIActionCode = async () => {
         
         Return in JSON format: { "amount": number, "reasoning": "string" }`;
 
-        // 2. Make OpenAI API call within Lit Action
         const openAIResponse = await LitActions.runOnce(
             { waitForResponse: true, name: "AI_Decision" },
             async () => {
@@ -55,7 +53,6 @@ const _litAIActionCode = async () => {
             }
         );
 
-        // Validate OpenAI response
         if (!openAIResponse) {
             throw new Error('No response received from OpenAI');
         }
@@ -68,7 +65,6 @@ const _litAIActionCode = async () => {
             throw new Error(`Failed to parse OpenAI response: ${error.message}`);
         }
 
-        // Validate decision object
         if (!decision.amount || !decision.reasoning) {
             throw new Error('Invalid decision format from OpenAI');
         }
@@ -83,13 +79,11 @@ const _litAIActionCode = async () => {
         let urgency = "medium";
         let shouldTransact = true;
 
-        // 4. Apply business logic and build final response
         if (baseAmount > parseFloat(amount_threshold)) {
             requiresVerification = true;
             reasoning += "\n⚠️ Amount exceeds threshold - requires human verification.";
         }
 
-        // Network load considerations
         if (metrics.networkLoad === "High") {
             reasoning += "\n⚠️ High network congestion but proceeding.";
         } else if (metrics.networkLoad === "Low") {
@@ -97,7 +91,6 @@ const _litAIActionCode = async () => {
             reasoning += "\n✅ Network congestion low.";
         }
 
-        // Gas price considerations
         if (metrics.gasPrice > 50) {
             reasoning += "\n⚠️ Gas prices are high.";
             urgency = "low";
@@ -106,7 +99,6 @@ const _litAIActionCode = async () => {
             reasoning += "\n✅ Gas prices are favorable.";
         }
 
-        // 5. Build summary
         reasoning += `\nCurrent conditions:
             - Gas Price: ${metrics.gasPrice} gwei
             - Network Load: ${metrics.networkLoad}
@@ -114,7 +106,6 @@ const _litAIActionCode = async () => {
             - Amount to send: ${baseAmount} gwei
             - Requires Verification: ${requiresVerification}`;
 
-        // 6. Set Lit Action response
         const response = {
             shouldTransact,
             amount: baseAmount.toString(),
@@ -138,4 +129,4 @@ const _litAIActionCode = async () => {
     }
 };
             
-export const litAIActionCode = `(${_litAIActionCode.toString()})();`;
+export const aiActionCode = `(${_aiActionCode.toString()})();`;
